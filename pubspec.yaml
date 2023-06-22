@@ -1,5 +1,5 @@
 name: jokes
-description: A new Flutter project.
+description: Laugh your way through the day with this hilarious jokes app! Endless fun guaranteed.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -36,6 +36,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  connectivity: ^3.0.6
+  http: ^0.13.4
 
 dev_dependencies:
   flutter_test:
