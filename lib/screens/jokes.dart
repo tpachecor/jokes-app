@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../utilities/textcontrol.dart';
 import '../utilities/reset.dart';
+import '../widgets/msg_dialog.dart';
 
 class JokesScreen extends StatefulWidget {
   const JokesScreen({Key? key}) : super(key: key);
@@ -32,6 +33,15 @@ class _JokesScreenState extends State<JokesScreen> {
       },
     );
 
+    void showErrorDialog(String errorMessage) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return MsgDialog(errorMessage);
+        },
+      );
+    }
+
     final response =
         await http.get(Uri.parse('https://v2.jokeapi.dev/joke/Any'));
 
@@ -39,9 +49,15 @@ class _JokesScreenState extends State<JokesScreen> {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      setState(() {
-        category = jsonData['category'] ?? '';
-      });
+      if (!jsonData['error']) {
+        setState(() {
+          category = jsonData['category'] ?? '';
+        });
+      } else {
+        showErrorDialog("Oops! Something went wrong. Please try again.");
+      }
+    } else {
+      showErrorDialog("Oops! Something went wrong. Please try later.");
     }
   }
 
