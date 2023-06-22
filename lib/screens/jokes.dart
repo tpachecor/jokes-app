@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../utilities/textcontrol.dart';
 import '../utilities/reset.dart';
 import '../widgets/msg_dialog.dart';
+import '../models/joke.dart';
 
 class JokesScreen extends StatefulWidget {
   const JokesScreen({Key? key}) : super(key: key);
@@ -14,8 +15,8 @@ class JokesScreen extends StatefulWidget {
 
 class _JokesScreenState extends State<JokesScreen> {
   bool isConnected = true;
+  Joke? joke;
   String category = '';
-
   @override
   void initState() {
     super.initState();
@@ -42,22 +43,26 @@ class _JokesScreenState extends State<JokesScreen> {
       );
     }
 
-    final response =
-        await http.get(Uri.parse('https://v2.jokeapi.dev/joke/Any'));
+    try {
+      http.Response response =
+          await http.get(Uri.parse('https://v2.jokeapi.dev/joke/Any'));
 
-    Navigator.pop(context);
+      Navigator.pop(context);
 
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      if (!jsonData['error']) {
-        setState(() {
-          category = jsonData['category'] ?? '';
-        });
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (!jsonData['error']) {
+          setState(() {
+            joke = Joke.fromJson(jsonData);
+          });
+        } else {
+          showErrorDialog("Oops! Something went wrong. Please try again.");
+        }
       } else {
-        showErrorDialog("Oops! Something went wrong. Please try again.");
+        showErrorDialog("Oops! Something went wrong. Please try later.");
       }
-    } else {
-      showErrorDialog("Oops! Something went wrong. Please try later.");
+    } catch (e) {
+      showErrorDialog("Oops! Something went wrong. Please try again.");
     }
   }
 
@@ -87,7 +92,7 @@ class _JokesScreenState extends State<JokesScreen> {
       ), */
       body: isConnected
           // ? category.isEmpty
-          ? Textcontrol(category, _changeText)
+          ? Textcontrol(joke, _changeText)
           //: Reset(_resetGame)
           : const Center(
               child: Text(
