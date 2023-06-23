@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:connectivity/connectivity.dart';
 import '../utilities/textcontrol.dart';
-import '../utilities/reset.dart';
 import '../widgets/msg_dialog.dart';
 import '../models/joke.dart';
 
@@ -14,9 +13,11 @@ class JokesScreen extends StatefulWidget {
 }
 
 class _JokesScreenState extends State<JokesScreen> {
-  bool isConnected = true;
+  bool isConnected = false;
   Joke? joke;
   String category = '';
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -24,17 +25,7 @@ class _JokesScreenState extends State<JokesScreen> {
   }
 
   Future<void> _changeText() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    void showErrorDialog(String errorMessage) {
+    void _showErrorDialog(String errorMessage) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -43,26 +34,49 @@ class _JokesScreenState extends State<JokesScreen> {
       );
     }
 
-    try {
-      http.Response response =
-          await http.get(Uri.parse('https://v2.jokeapi.dev/joke/Any'));
+    if (!isConnected) {
+      _showErrorDialog(
+          "No internet connection. Please check your connection and try again.");
+      return;
+    }
 
-      Navigator.pop(context);
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final dio = Dio();
+      dio.options.connectTimeout = 10000; // 10 seconds
+      dio.options.receiveTimeout = 10000; // 10 seconds
+
+      final response = await dio.get('https://v2.jokeapi.dev/joke/Any');
+
+      setState(() {
+        isLoading = false;
+      });
 
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
+        final jsonData = response.data;
         if (!jsonData['error']) {
           setState(() {
             joke = Joke.fromJson(jsonData);
           });
         } else {
-          showErrorDialog("Oops! Something went wrong. Please try again.");
+          _showErrorDialog("Oops! Something went wrong. Please try again.");
         }
       } else {
-        showErrorDialog("Oops! Something went wrong. Please try later.");
+        _showErrorDialog("Oops! Something went wrong. Please try later.");
       }
     } catch (e) {
-      showErrorDialog("Oops! Something went wrong. Please try again.");
+      setState(() {
+        isLoading = false;
+      });
+
+      if (e is DioError && e.type == DioErrorType.connectTimeout) {
+        _showErrorDialog("Request timed out. Please try again later.");
+      } else {
+        _showErrorDialog("Check your internet connection.");
+      }
     }
   }
 
@@ -78,32 +92,42 @@ class _JokesScreenState extends State<JokesScreen> {
   }
 
   Future<void> checkConnection() async {
-    bool connected = await checkInternetConnection();
+    var connectivityResult = await Connectivity().checkConnectivity();
     setState(() {
-      isConnected = connected;
+      isConnected = connectivityResult != ConnectivityResult.none;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*      body: Center(
-        child: Text('JOKES'),
-      ), */
       body: isConnected
-          // ? category.isEmpty
-          ? Textcontrol(joke, _changeText)
-          //: Reset(_resetGame)
-          : const Center(
-              child: Text(
-                'Connection lost. Please check your network and try again.',
+          ? Stack(
+              children: [
+                Textcontrol(joke, _changeText),
+                if (isLoading)
+                  Container(
+                    color: Colors.black54,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+              ],
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Connection lost. Please check your network and try again.',
+                  ),
+                  ElevatedButton(
+                    onPressed: checkConnection,
+                    child: Text('Retry'),
+                  ),
+                ],
               ),
             ),
     );
   }
-}
-
-Future<bool> checkInternetConnection() async {
-  await Future.delayed(const Duration(seconds: 2));
-  return true;
 }

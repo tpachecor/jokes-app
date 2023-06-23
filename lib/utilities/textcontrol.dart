@@ -25,7 +25,6 @@ class _TextcontrolState extends State<Textcontrol> {
     String textChange = '';
 
     List<String> jokeDeliveryOptions = [
-      'Show Delivery',
       'Did You Guess?',
       'Reveal Punchline',
       'Here it is!',
@@ -62,7 +61,7 @@ class _TextcontrolState extends State<Textcontrol> {
                   if (showDelivery && delivery.isNotEmpty) TextRender(delivery),
                   if (!showDelivery) // Only show the "Show delivery" button if showDelivery is false
                     ElevatedButton(
-                      child: Text('Show delivery'),
+                      child: Text(buttonText),
                       onPressed: () {
                         setState(() {
                           showDelivery = true;
