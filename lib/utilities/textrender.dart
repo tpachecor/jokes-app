@@ -9,7 +9,6 @@ class TextRender extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(flags);
     return Card(
       child: Padding(
         padding: EdgeInsets.all(16),

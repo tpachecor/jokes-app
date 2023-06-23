@@ -15,7 +15,6 @@ class JokesScreen extends StatefulWidget {
 class _JokesScreenState extends State<JokesScreen> {
   bool isConnected = false;
   Joke? joke;
-  String category = '';
   bool isLoading = false;
 
   Future<void> checkConnection() async {
@@ -87,23 +86,10 @@ class _JokesScreenState extends State<JokesScreen> {
     }
   }
 
-  void _resetGame() {
-    setState(() {
-      category = '';
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
   }
-
-/*   Future<void> checkConnection() async {
-    var connectivityResult = await Connectivity().checkConnectivity();
-    setState(() {
-      isConnected = connectivityResult != ConnectivityResult.none;
-    });
-  } */
 
   @override
   Widget build(BuildContext context) {
