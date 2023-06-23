@@ -101,33 +101,41 @@ class _JokesScreenState extends State<JokesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isConnected
-          ? Stack(
-              children: [
-                Textcontrol(joke, _changeText),
-                if (isLoading)
-                  Container(
-                    color: Colors.black54,
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-              ],
-            )
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: isConnected
+            ? Stack(
                 children: [
-                  Text(
-                    'Connection lost. Please check your network and try again.',
-                  ),
-                  ElevatedButton(
-                    onPressed: checkConnection,
-                    child: Text('Retry'),
-                  ),
+                  Textcontrol(joke, _changeText),
+                  if (isLoading)
+                    Container(
+                      color: Colors.black54,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
                 ],
+              )
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Connection lost. Please check your network and try again.',
+                    ),
+                    ElevatedButton(
+                      onPressed: checkConnection,
+                      child: Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }
