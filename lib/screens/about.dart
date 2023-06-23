@@ -10,6 +10,16 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: Image.asset(
+                'assets/images/profile_image.jpg',
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

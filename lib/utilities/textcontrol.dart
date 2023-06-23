@@ -3,6 +3,7 @@ import 'textrender.dart';
 import 'deliveryrender.dart';
 import '../models/joke.dart';
 import 'dart:math';
+import 'dart:async';
 
 class Textcontrol extends StatefulWidget {
   final Joke? joke;
@@ -14,8 +15,55 @@ class Textcontrol extends StatefulWidget {
   _TextcontrolState createState() => _TextcontrolState();
 }
 
-class _TextcontrolState extends State<Textcontrol> {
+class _TextcontrolState extends State<Textcontrol>
+    with SingleTickerProviderStateMixin {
   bool showDelivery = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _animationController.reverse();
+        }
+      });
+
+    _animation = Tween<double>(begin: 0.0, end: 10.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Start the timer for bounce animation
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startAnimation() {
+    _animationController.reset();
+    _animationController.forward();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 2), (_) {
+      if (!_animationController.isAnimating && mounted) {
+        _startAnimation();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,40 +172,93 @@ class _TextcontrolState extends State<Textcontrol> {
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  showDelivery = false; // Reset showDelivery to false
-                });
-                widget.changeText(); // Call the changeText function
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(width * 0.1),
-                ),
-                primary: Colors.white,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(width * 0.1),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Tell me another joke',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 242, 72, 234),
-                      fontSize: width * 0.04,
-                      fontFamily: 'ProductSans',
+          Align(
+            alignment: (jokesingle.isEmpty && setup.isEmpty)
+                ? Alignment.center
+                : Alignment.bottomCenter,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (jokesingle.isEmpty && setup.isEmpty)
+                  Center(
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      transform:
+                          Matrix4.translationValues(0.0, _animation.value, 0.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            showDelivery = false; // Reset showDelivery to false
+                          });
+                          _startAnimation(); // Start the animation
+                          widget.changeText(); // Call the changeText function
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(width * 0.1),
+                          ),
+                          primary: Colors.white,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(width * 0.1),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Tell me a joke',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 242, 72, 234),
+                                fontSize: width * 0.04,
+                                fontFamily: 'ProductSans',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                if (!(jokesingle.isEmpty && setup.isEmpty))
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    transform:
+                        Matrix4.translationValues(0.0, _animation.value, 0.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          showDelivery = false; // Reset showDelivery to false
+                        });
+                        _startAnimation(); // Start the animation
+                        widget.changeText(); // Call the changeText function
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(width * 0.1),
+                        ),
+                        primary: Colors.white,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(width * 0.1),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Tell me another joke',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 242, 72, 234),
+                              fontSize: width * 0.04,
+                              fontFamily: 'ProductSans',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          SizedBox(height: 20), // Adjust the spacing as needed
+          SizedBox(height: 20),
         ],
       ),
     );

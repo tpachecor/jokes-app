@@ -12,6 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool isSpanishSelected = false;
   bool isConnected = false;
   String category = '';
   int _currentIndex = 0;
@@ -52,6 +53,22 @@ class _MyAppState extends State<MyApp> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Jokes'),
+        actions: [
+          Row(
+            children: [
+              Text('ES'),
+              Switch(
+                value: isSpanishSelected,
+                onChanged: (value) {
+                  setState(() {
+                    isSpanishSelected = value;
+                  });
+                },
+              ),
+              Text('EN'),
+            ],
+          ),
+        ],
       ),
       body: PageView(
         controller: _pageController,
