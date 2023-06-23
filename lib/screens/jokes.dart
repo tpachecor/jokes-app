@@ -18,6 +18,13 @@ class _JokesScreenState extends State<JokesScreen> {
   String category = '';
   bool isLoading = false;
 
+  Future<void> checkConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    setState(() {
+      isConnected = connectivityResult != ConnectivityResult.none;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -91,12 +98,12 @@ class _JokesScreenState extends State<JokesScreen> {
     super.dispose();
   }
 
-  Future<void> checkConnection() async {
+/*   Future<void> checkConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     setState(() {
       isConnected = connectivityResult != ConnectivityResult.none;
     });
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {

@@ -13,6 +13,14 @@ Laugh your way through the day with this hilarious jokes app! Endless fun guaran
 2. Navigate to the project directory: `cd jokes-app`
 3. Install dependencies: `flutter pub get`
 
+### Build
+
+To build a release version of the app, run the following command:
+
+flutter build apk
+
+This will generate an APK file for Android, which can be installed on compatible devices.
+
 ## Usage
 
 1. Run the application: `flutter run`
